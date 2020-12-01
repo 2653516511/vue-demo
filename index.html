@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- 页面中要显示的内容 -->
+    <div id="app">
+        <h2>{{person.name}}, {{person.age}}</h2>
+        <h3>{{person.like}}</h3>
+        <ul>
+            <li>li1</li>
+            <li>li2</li>
+        </ul>
+        <h3>{{message}}</h3>
+        <div v-text='message'></div>
+        <input type="text" v-model='message'>
+        <div v-html='htmlStr'></div>
+    </div>
+
+    <!-- js部分：使用vue -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
+    <script src="./js/myVue.js"></script>
+    <script>
+        let vm = new myVue({
+            el: '#app',
+            data: {
+                person: {
+                    name: 'name1',
+                    age:11,
+                    like: 'code'
+                },
+                message: '动手实现MVVM'
+            }
+        })
+    </script>
+</body>
+</html>
