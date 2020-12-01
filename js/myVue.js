@@ -44,8 +44,30 @@ class Compile{
 
     }
     // 编译元素节点
+    // 编译元素节点的目的：对节点上的指令进行编译。例如v-text v-html v-model等
     compileElement(node) {
-
+        // console.log('node', node);
+        const attributes = node.attributes
+        // console.log('attributes', attributes);
+        ;[...attributes].forEach(attr => {
+            // console.log('attr', attr);
+            const {name, value} = attr
+            console.log('name', name);
+            // 判断当前的name是否是一个指令
+            if(this.isDirective(name)) {
+                // 对指令操作：v-text v-html v-model v-on:click 等
+                const [, directive] = name.split('-')   //text html model on:click
+                const [dirName, dirEvent] = directive.split(':') //text html model on
+                
+                // 根据不同的指令处理不同的事件
+                // 传入参数this.vm拿到data中的值
+                conpileUtil[dirName](node, value, this.vm, dirEvent)
+            }
+        })
+    }
+    // 判断是否是以v-开头的
+    isDirective(attrName) {
+        return attrName.startsWith('v-')
     }
     // 1, 利用文档碎片，拿到所有的子节点
     node2Fragment(el) {
