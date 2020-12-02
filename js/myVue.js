@@ -1,4 +1,45 @@
+const compileUtil = {
+    // 对value进行处理
+    getVal(exp, vm) {
+        return exp.split('.').reduce((data, currentVal) => {
+            // console.log('data', data);
+            return data[currentVal]
+        }, vm.$data)
+    },
+    // exp: message
+    text(node, exp, vm) {   
 
+        // 从data中取到exp对应的值
+        // v-text='message'  v-text='person.name'
+        // const value = vm.$data[exp]  //这个操作只能拿到message类似的值，而person.name类似的值拿不到
+        const value = this.getVal(exp, vm)
+        this.updater.textUpdater(node, value)
+    },
+    html(node, exp, vm) {
+        const value = this.getVal(exp, vm)
+        this.updater.htmlUpdater(node, value)
+    },
+    model(node, exp, vm) {
+        
+    },
+    model(node, exp, vm, eventName) {
+        const value = this.getVal(exp, vm)
+        this.updater.modelUpdater(node, value)
+    },
+    // 更新节点的数据的对象
+    updater: {
+        textUpdater(node, value) {
+            // 给node节点的文本赋值
+            node.textContent = value
+        },
+        htmlUpdater(node, value) {
+            node.innerHTML = value
+        },
+        modelUpdater(node, value) {
+            node.value = value
+        }
+    }
+}
 class Compile{
     constructor(el, vm) {
         // 判断el是否是一个元素节点对象
@@ -14,6 +55,7 @@ class Compile{
         // 2, 编译模板
         this.compile(fragment)
         // 3, 重新将编译后的子节点追加到根节点上
+        this.el.appendChild(fragment)
     }
     // 2, 编译模板
     compile(fragment) {
@@ -52,16 +94,20 @@ class Compile{
         ;[...attributes].forEach(attr => {
             // console.log('attr', attr);
             const {name, value} = attr
-            console.log('name', name);
+            // console.log('name', name);
             // 判断当前的name是否是一个指令
             if(this.isDirective(name)) {
                 // 对指令操作：v-text v-html v-model v-on:click 等
                 const [, directive] = name.split('-')   //text html model on:click
                 const [dirName, dirEvent] = directive.split(':') //text html model on
                 
+                // 更新数据， 数据驱动视图
                 // 根据不同的指令处理不同的事件
                 // 传入参数this.vm拿到data中的值
-                conpileUtil[dirName](node, value, this.vm, dirEvent)
+                compileUtil[dirName](node, value, this.vm, dirEvent)
+
+                // 删除元素节点上 的指令属性
+                node.removeAttribute('v-' + directive)
             }
         })
     }

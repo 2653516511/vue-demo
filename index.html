@@ -16,8 +16,10 @@
         </ul>
         <h3>{{message}}</h3>
         <div v-text='message'></div>
+        <div v-text='person.name'></div>
         <input type="text" v-model='message'>
         <div v-html='htmlStr'></div>
+        
     </div>
 
     <!-- js部分：使用vue -->
@@ -32,7 +34,8 @@
                     age:11,
                     like: 'code'
                 },
-                message: '动手实现MVVM'
+                message: '动手实现MVVM',
+                htmlStr: '<p>htmlStr show</p>'
             }
         })
     </script>
