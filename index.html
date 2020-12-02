@@ -19,7 +19,8 @@
         <div v-text='person.name'></div>
         <input type="text" v-model='message'>
         <div v-html='htmlStr'></div>
-        
+        <button v-on:click = 'handleClick'>click</button>
+        <button @click = 'handleClick'>click</button>
     </div>
 
     <!-- js部分：使用vue -->
@@ -36,6 +37,11 @@
                 },
                 message: '动手实现MVVM',
                 htmlStr: '<p>htmlStr show</p>'
+            },
+            methods: {
+                handleClick() {
+                    console.log(this, 1);
+                }
             }
         })
     </script>

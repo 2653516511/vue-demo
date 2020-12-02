@@ -33,11 +33,23 @@ const compileUtil = {
         this.updater.htmlUpdater(node, value)
     },
     model(node, exp, vm) {
-        
-    },
-    model(node, exp, vm, eventName) {
         const value = this.getVal(exp, vm)
         this.updater.modelUpdater(node, value)
+    },
+    on(node, exp, vm, eventName) {
+        // exp: handleClick
+        // console.log('exp', exp);
+        // console.log('eventName', eventName);
+        const expFn = vm.$options.methods[exp]
+        // console.log('expFn', expFn);
+        
+        // 给节点绑定监听事件
+        // 这里注意给expFn绑定this为vm，不然就是node
+        node.addEventListener(eventName, expFn.bind(vm), false)
+
+    },
+    bind(node, exp, vm, attrName) {
+        // 绑定属性的操作
     },
     // 更新节点的数据的对象
     updater: {
@@ -119,7 +131,7 @@ class Compile{
             // console.log('name', name);
             // 判断当前的name是否是一个指令
             if(this.isDirective(name)) {
-                // 对指令操作：v-text v-html v-model v-on:click 等
+                // 对指令操作：v-text v-html v-model v-on:click v-bind: 等
                 const [, directive] = name.split('-')   //text html model on:click
                 const [dirName, dirEvent] = directive.split(':') //text html model on
                 
@@ -130,8 +142,16 @@ class Compile{
 
                 // 删除元素节点上 的指令属性
                 node.removeAttribute('v-' + directive)
+            } else if (this.isEventName(name)) { 
+                // 处理事件名为 @click='handleClick'
+                let [, eventName] = name.split('@')
+                compileUtil['on'](node, value, this.vm, eventName)
             }
         })
+    }
+    // 事件@click='...' 的函数
+    isEventName(attrName) {
+        return attrName.startsWith('@')
     }
     // 判断是否是以v-开头的
     isDirective(attrName) {
