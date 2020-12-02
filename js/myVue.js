@@ -7,13 +7,26 @@ const compileUtil = {
         }, vm.$data)
     },
     // exp: message
-    text(node, exp, vm) {   
-
+    text(node, exp, vm) {  
         // 从data中取到exp对应的值
-        // v-text='message'  v-text='person.name'
-        // const value = vm.$data[exp]  //这个操作只能拿到message类似的值，而person.name类似的值拿不到
-        const value = this.getVal(exp, vm)
+
+        let value
+        // 判断是{{}}的文本，还是指令的文本
+        // 是{{}}的文本
+        if(exp.indexOf('{{') !== -1) {
+            // 这里的关键点是拿到{{}}里面的值，使用如下方法
+            value = exp.replace(/\{\{(.*?)\}\}/g, (...args) => {
+                // console.log(args);
+                return this.getVal(args[1], vm)
+            })
+        } else {
+            // v-text='message'  v-text='person.name'
+            // const value = vm.$data[exp]  //这个操作只能拿到message类似的值，而person.name类似的值拿不到
+            value = this.getVal(exp, vm)
+        }
+        
         this.updater.textUpdater(node, value)
+
     },
     html(node, exp, vm) {
         const value = this.getVal(exp, vm)
@@ -83,6 +96,15 @@ class Compile{
     }
     // 编译文本节点
     compileText(node) {
+        // {{}}
+        const nodeText = node.textContent
+        // console.log('nodeText', nodeText);
+        // 正则匹配{{}}
+        const regexp = new RegExp(/\{\{(.*?)\}\}/)
+        if(regexp.test(nodeText)) {
+            // console.log('nodeText', nodeText);
+            compileUtil['text'](node, nodeText, this.vm)
+        }
 
     }
     // 编译元素节点
