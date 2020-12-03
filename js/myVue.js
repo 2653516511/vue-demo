@@ -1,10 +1,17 @@
 const compileUtil = {
-    // 对value进行处理
+    // 对value进行处理，拿到最终的value
     getVal(exp, vm) {
         return exp.split('.').reduce((data, currentVal) => {
             // console.log('data', data);
             return data[currentVal]
         }, vm.$data)
+    },
+    // text 绑定watcher的newVal的处理
+    getContentVal(exp, vm) {
+        return exp.replace(/\{\{(.*?)\}\}/g, (...args) => {
+            
+            return this.getVal(args[1], vm)
+        })
     },
     // exp: message
     text(node, exp, vm) {  
@@ -17,6 +24,10 @@ const compileUtil = {
             // 这里的关键点是拿到{{}}里面的值，使用如下方法
             value = exp.replace(/\{\{(.*?)\}\}/g, (...args) => {
                 // console.log(args);
+                // 订阅数据变化，绑定更新函数
+                new Watcher(vm, args[1], () => {
+                    this.updater.textUpdater(node, this.getContentVal(exp, vm))
+                })
                 return this.getVal(args[1], vm)
             })
         } else {
@@ -30,10 +41,19 @@ const compileUtil = {
     },
     html(node, exp, vm) {
         const value = this.getVal(exp, vm)
+        // 订阅数据变化，绑定更新函数
+        new Watcher(vm, exp, (newVal) => {
+            this.updater.htmlUpdater(node, newVal)
+        })
+
         this.updater.htmlUpdater(node, value)
     },
     model(node, exp, vm) {
         const value = this.getVal(exp, vm)
+        // 订阅数据变化，绑定更新函数
+        new Watcher(vm, exp, (newVal) => {
+            this.updater.modelUpdater(node, newVal)
+        })
         this.updater.modelUpdater(node, value)
     },
     on(node, exp, vm, eventName) {
@@ -183,7 +203,7 @@ class myVue{
         // 首先绑定值
         this.$options = options
         this.$el = options.el
-        this.$data = options.data
+        this.$data = this.data = options.data
 
         if(this.$el) {
             // observer 劫持监听数据 数据的观察者

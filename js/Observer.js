@@ -1,3 +1,20 @@
+class Dep{
+    constructor() {
+        // 观察者watcher数组
+        this.subs = []
+    }
+    // 收集观察者
+    addSub(watcher) {
+        this.subs.push(watcher)
+    }
+    // 通知观察者更新
+    notify() {
+        console.log('notify-watcher', this.subs);
+        this.subs.forEach(w => w.update())
+    }
+}
+// Dep.target = null
+
 
 class Observer {
     constructor(data) {
@@ -12,15 +29,20 @@ class Observer {
             })
         }
     }
+    // 劫持数据
     defineReactive(obj, key, value) {
         // 递归
         this.observer(value)
+
+        const dep = new Dep()
+
         // 劫持
         Object.defineProperty(obj, key, {
             configurable: false,
             enumerable: true,
             get() {
                 // 订阅数据变化时，往dep中添加观察者，收集依赖
+                Dep.target && dep.addSub(Dep.target)
 
                 return value
             },
@@ -37,6 +59,8 @@ class Observer {
                 if(value !== newValue) {
                     value = newValue
                 }
+                // 改变数据之后，observer->Dep 通知变化
+                dep.notify()
             }
         })
     }
