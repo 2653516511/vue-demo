@@ -186,7 +186,8 @@ class myVue{
         this.$data = options.data
 
         if(this.$el) {
-            // observer 劫持监听数据
+            // observer 劫持监听数据 数据的观察者
+            new Observer(this.$data)
 
             // compile 指令的解析器
             // 这里注意一点，compile是一个类，而类不存在变量提升，所以需要在用之前申明
