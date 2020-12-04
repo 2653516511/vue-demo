@@ -1,4 +1,13 @@
 const compileUtil = {
+    // view驱动data函数
+    getNewval(exp, vm, targetVal) {
+        console.log('input-value', exp);
+        return exp.split('.').reduce((data, currentVal) => {
+            // console.log('current', currentVal);
+            data[currentVal] = targetVal
+        }, vm.$data)
+        
+    },
     // 对value进行处理，拿到最终的value
     getVal(exp, vm) {
         return exp.split('.').reduce((data, currentVal) => {
@@ -53,6 +62,14 @@ const compileUtil = {
         // 订阅数据变化，绑定更新函数
         new Watcher(vm, exp, (newVal) => {
             this.updater.modelUpdater(node, newVal)
+        })
+        node.addEventListener('input', (targetNode) => {
+            const targetVal = targetNode.target.value
+            if(value === targetVal) {
+                return
+            }
+
+            this.getNewval(exp, vm, targetVal)
         })
         this.updater.modelUpdater(node, value)
     },
@@ -198,7 +215,7 @@ class Compile{
     }
 }
 
-class myVue{
+class mMVVM{
     constructor(options) {
         // 首先绑定值
         this.$options = options
@@ -211,7 +228,7 @@ class myVue{
 
             // compile 指令的解析器
             // 这里注意一点，compile是一个类，而类不存在变量提升，所以需要在用之前申明
-            // 参数是el、当前的myVue实例
+            // 参数是el、当前的mMVVM实例
             new Compile(this.$el, this)
         }
 
