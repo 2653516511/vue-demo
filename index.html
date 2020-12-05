@@ -18,6 +18,7 @@
         <div v-text='message'></div>
         <div v-text='person.name'></div>
         <input type="text" v-model='message'>
+        <input type="text" v-model='person.name'>
         <div v-html='htmlStr'></div>
         <button v-on:click = 'handleClick'>click</button>
         <button @click = 'handleClick'>click</button>
@@ -25,6 +26,7 @@
 
     <!-- js部分：使用vue -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
+    <script src="./js/Compile.js"></script>
     <script src="./js/Watcher.js"></script>
     <script src="./js/Observer.js"></script>
     <script src="./js/mMVVM.js"></script>
@@ -33,10 +35,11 @@
             el: '#app',
             data: {
                 person: {
-                    name: 'name1',
+                    name: 'person-name',
                     age:11,
                     like: 'code'
                 },
+                name: 'name',
                 message: '动手实现MVVM',
                 htmlStr: '<p>htmlStr show</p>'
             },
